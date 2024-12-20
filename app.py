@@ -7,6 +7,7 @@ import torch
 from PIL import Image
 from transformers import CLIPProcessor, CLIPModel, AutoProcessor, AutoModel
 from sklearn.metrics.pairwise import cosine_similarity
+import time
 
 # Hàm tải tệp từ URL
 def download_file(url, save_path):
@@ -30,7 +31,17 @@ def download_and_extract_zip(url, extract_to="images"):
         for file in zip_ref.namelist():
             zip_ref.extract(file, extract_to)
             print(f"Đã giải nén: {file}")
-    os.remove(zip_path)
+    
+    # Xoá tệp ZIP sau khi giải nén
+    try:
+        print(f"Đang cố gắng xoá tệp: {zip_path}")
+        os.remove(zip_path)
+        print(f"Tệp {zip_path} đã được xoá.")
+    except PermissionError:
+        print(f"Lỗi quyền khi xoá tệp: {zip_path}")
+    except Exception as e:
+        print(f"Không thể xoá tệp {zip_path}: {e}")
+
     return extract_to
 
 # Hàm tải embeddings từ Hugging Face
