@@ -20,14 +20,30 @@ def download_file(url, save_path):
 # Hàm tải và giải nén tệp ZIP
 def download_and_extract_zip(url, extract_to="images"):
     zip_path = "images.zip"
-    response = requests.get(url, stream=True)
-    with open(zip_path, "wb") as f:
-        for chunk in response.iter_content(chunk_size=1024):
-            if chunk:
-                f.write(chunk)
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        zip_ref.extractall(extract_to)
-    os.remove(zip_path)
+    
+    # Tải tệp ZIP từ URL
+    try:
+        response = requests.get(url, stream=True)
+        response.raise_for_status()  # Kiểm tra lỗi kết nối
+        with open(zip_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+        print(f"Đã tải xong tệp ZIP từ {url}")
+    except requests.exceptions.RequestException as e:
+        print(f"Lỗi khi tải tệp ZIP: {e}")
+        st.error("Có lỗi khi tải tệp ZIP từ URL.")
+
+    # Giải nén tệp ZIP vào thư mục
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(extract_to)
+        os.remove(zip_path)  # Xóa tệp ZIP sau khi giải nén
+        print(f"Đã giải nén tệp vào thư mục {extract_to}")
+    except zipfile.BadZipFile:
+        print(f"Tệp {zip_path} không phải là tệp ZIP hợp lệ.")
+        st.error(f"Tệp {zip_path} không phải là tệp ZIP hợp lệ.")
+    
     return extract_to
 
 # Hàm tải embeddings từ Hugging Face
