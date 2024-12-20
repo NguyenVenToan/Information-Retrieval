@@ -4,7 +4,7 @@ torchvision
 transformers
 scikit-learn
 tqdm
-numpy
+numpy<2
 pandas
 pillow
 requests
